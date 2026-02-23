@@ -30,14 +30,17 @@ else:
 st.markdown(f"""
 <style>
 
+/* App background */
 .stApp {{
     background-color: {bg_color};
 }}
 
+/* Force normal text color */
 p, h1, h2, h3, h4, h5, h6, label, span {{
     color: {text_color} !important;
 }}
 
+/* Main Card */
 .main-card {{
     background: {card_color};
     padding: 40px;
@@ -47,6 +50,7 @@ p, h1, h2, h3, h4, h5, h6, label, span {{
     box-shadow: 0px 10px 30px rgba(0,0,0,0.15);
 }}
 
+/* Header */
 .header-section {{
     background: {header_gradient};
     height: 140px;
@@ -63,12 +67,18 @@ p, h1, h2, h3, h4, h5, h6, label, span {{
     font-weight: bold;
 }}
 
+/* Buttons */
 .stButton > button {{
     background-color: #243b55 !important;
     color: white !important;
     border-radius: 8px;
     padding: 10px 25px;
     font-weight: 600;
+}}
+
+/* Force all button text to white */
+.stButton > button * {{
+    color: white !important;
 }}
 
 </style>
@@ -245,3 +255,4 @@ elif st.session_state.page == 3:
         st.session_state.page = 1
 
     st.markdown('</div>', unsafe_allow_html=True)
+
