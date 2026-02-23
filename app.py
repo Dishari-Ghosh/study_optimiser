@@ -13,9 +13,13 @@ scaler = joblib.load("scaler.pkl")
 st.set_page_config(page_title="Placement Predictor", layout="centered")
 st.markdown("""
 <style>
+
+/* App Background */
 .stApp {
     background-color: #e6e9ef;
 }
+
+/* Main White Card */
 .main-card {
     background: white;
     padding: 40px;
@@ -23,7 +27,34 @@ st.markdown("""
     max-width: 750px;
     margin: auto;
     box-shadow: 0px 10px 30px rgba(0,0,0,0.15);
+    color: #000000 !important;   /* FORCE BLACK TEXT */
 }
+
+/* Force all text inside card to black */
+.main-card h1,
+.main-card h2,
+.main-card h3,
+.main-card h4,
+.main-card h5,
+.main-card h6,
+.main-card p,
+.main-card span,
+.main-card div,
+.main-card label,
+.main-card li {
+    color: #000000 !important;
+}
+
+/* Fix Streamlit metric text */
+[data-testid="stMetricValue"] {
+    color: #000000 !important;
+}
+
+[data-testid="stMetricLabel"] {
+    color: #000000 !important;
+}
+
+/* Header Section */
 .header-section {
     background: linear-gradient(135deg, #243b55, #141e30);
     height: 140px;
@@ -33,22 +64,27 @@ st.markdown("""
     align-items: center;
     padding-left: 30px;
 }
+
 .header-title {
-    color: white;
+    color: white !important;
     font-size: 26px;
     font-weight: bold;
 }
+
+/* Buttons */
 .stButton>button {
     background-color: #243b55;
-    color: white;
+    color: white !important;
     border-radius: 8px;
     padding: 10px 25px;
     font-weight: 500;
 }
+
 .stButton>button:hover {
     background-color: #1b2d44;
-    color: white;
+    color: white !important;
 }
+
 </style>
 """, unsafe_allow_html=True)
 if "page" not in st.session_state:
