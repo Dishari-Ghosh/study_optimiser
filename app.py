@@ -21,65 +21,27 @@ scaler = joblib.load("scaler.pkl")
 st.set_page_config(page_title="Placement Predictor", layout="centered")
 
 # -----------------------------
-# CSS FIX FOR DARK THEME ISSUE
+# CLEAN CSS (SAFE FOR DARK/LIGHT)
 # -----------------------------
 st.markdown("""
 <style>
 
-/* ===== FORCE LIGHT TEXT ===== */
-html, body, [class*="css"] {
-    color: #000000 !important;
-}
-
 /* App background */
 .stApp {
     background-color: #e6e9ef;
-    color: #000000 !important;
 }
 
-/* Main white card */
+/* Main Card */
 .main-card {
-    background: #ffffff !important;
+    background: white;
     padding: 40px;
     border-radius: 15px;
     max-width: 750px;
     margin: auto;
     box-shadow: 0px 10px 30px rgba(0,0,0,0.15);
-    color: #000000 !important;
 }
 
-/* Everything inside card */
-.main-card * {
-    color: #000000 !important;
-}
-
-/* Markdown container */
-[data-testid="stMarkdownContainer"] * {
-    color: #000000 !important;
-}
-
-/* Metrics */
-[data-testid="stMetricValue"],
-[data-testid="stMetricLabel"] {
-    color: #000000 !important;
-}
-
-/* Input labels */
-label {
-    color: #000000 !important;
-}
-
-/* Selectbox text */
-[data-baseweb="select"] * {
-    color: #000000 !important;
-}
-
-/* Slider text */
-[data-testid="stSlider"] * {
-    color: #000000 !important;
-}
-
-/* Header Section */
+/* Header */
 .header-section {
     background: linear-gradient(135deg, #243b55, #141e30);
     height: 140px;
@@ -91,23 +53,23 @@ label {
 }
 
 .header-title {
-    color: #ffffff !important;
+    color: white;
     font-size: 26px;
     font-weight: bold;
 }
 
 /* Buttons */
-.stButton>button {
-    background-color: #243b55;
-    color: #ffffff !important;
+.stButton > button {
+    background-color: #243b55 !important;
+    color: white !important;
     border-radius: 8px;
     padding: 10px 25px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
-.stButton>button:hover {
-    background-color: #1b2d44;
-    color: #ffffff !important;
+.stButton > button:hover {
+    background-color: #1b2d44 !important;
+    color: white !important;
 }
 
 </style>
@@ -143,9 +105,10 @@ elif st.session_state.page == 2:
     st.markdown('<div class="header-section"><div class="header-title">ENTER STUDENT DETAILS</div></div>', unsafe_allow_html=True)
 
     st.write("## 👤 Student Information")
-    name = st.text_input("Full Name")
-    email = st.text_input("Email Address")
-    college = st.text_input("College Name")
+
+    name = st.text_input("Full Name *")
+    email = st.text_input("Email Address *")
+    college = st.text_input("College Name *")
 
     st.write("---")
     st.write("## 🎓 Academic Details")
@@ -164,21 +127,26 @@ elif st.session_state.page == 2:
     attention = st.slider("Total Study Hours", 0, 12, 0)
 
     if st.button("GENERATE REPORT"):
-        features = np.array([[year, cgpa, internships, projects,
-                              aptitude, coding, mock, attention]])
 
-        features_scaled = scaler.transform(features)
-        probability = placement_model.predict_proba(features_scaled)[0][1]
+        # Required Field Validation
+        if not name.strip() or not email.strip() or not college.strip():
+            st.error("⚠️ Please fill all required fields (Name, Email, College).")
+        else:
+            features = np.array([[year, cgpa, internships, projects,
+                                  aptitude, coding, mock, attention]])
 
-        recommended_hours = study_model.predict(features)[0]
-        recommended_hours = np.clip(recommended_hours, 2, 10)
+            features_scaled = scaler.transform(features)
+            probability = placement_model.predict_proba(features_scaled)[0][1]
 
-        st.session_state.readiness = round(probability * 100, 2)
-        st.session_state.study_hours = round(recommended_hours, 2)
-        st.session_state.name = name
-        st.session_state.email = email
-        st.session_state.college = college
-        st.session_state.page = 3
+            recommended_hours = study_model.predict(features)[0]
+            recommended_hours = np.clip(recommended_hours, 2, 10)
+
+            st.session_state.readiness = round(probability * 100, 2)
+            st.session_state.study_hours = round(recommended_hours, 2)
+            st.session_state.name = name
+            st.session_state.email = email
+            st.session_state.college = college
+            st.session_state.page = 3
 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -186,6 +154,7 @@ elif st.session_state.page == 2:
 # PAGE 3
 # -----------------------------
 elif st.session_state.page == 3:
+
     readiness = st.session_state.readiness
     hours = st.session_state.study_hours
 
@@ -223,70 +192,6 @@ elif st.session_state.page == 3:
 
     for s in suggestions:
         st.write("•", s)
-
-    # -----------------------------
-    # PDF GENERATION
-    # -----------------------------
-    def generate_pdf():
-        file_path = "Placement_Report.pdf"
-        doc = SimpleDocTemplate(file_path, pagesize=A4)
-        elements = []
-        styles = getSampleStyleSheet()
-
-        elements.append(Paragraph("Placement Readiness Report", styles["Heading1"]))
-        elements.append(Spacer(1, 0.3 * inch))
-
-        today = datetime.date.today().strftime("%d-%m-%Y")
-        elements.append(Paragraph(f"Date: {today}", styles["Normal"]))
-        elements.append(Spacer(1, 0.3 * inch))
-
-        student_data = [
-            ["Name", st.session_state.name],
-            ["Email", st.session_state.email],
-            ["College", st.session_state.college]
-        ]
-
-        student_table = Table(student_data, colWidths=[2*inch, 3*inch])
-        student_table.setStyle(TableStyle([
-            ('GRID', (0,0), (-1,-1), 1, colors.grey),
-            ('BACKGROUND', (0,0), (0,-1), colors.lightgrey),
-        ]))
-
-        elements.append(student_table)
-        elements.append(Spacer(1, 0.5 * inch))
-
-        result_data = [
-            ["Placement Probability", f"{readiness}%"],
-            ["Recommended Study Hours", f"{hours} hrs/day"]
-        ]
-
-        result_table = Table(result_data, colWidths=[3*inch, 2*inch])
-        result_table.setStyle(TableStyle([
-            ('GRID', (0,0), (-1,-1), 1, colors.grey),
-            ('BACKGROUND', (0,0), (-1,0), colors.lightgrey),
-        ]))
-
-        elements.append(result_table)
-        elements.append(Spacer(1, 0.5 * inch))
-
-        elements.append(Paragraph("Suggested Improvement Plan:", styles["Heading2"]))
-        elements.append(Spacer(1, 0.2 * inch))
-
-        bullet_points = [ListItem(Paragraph(item, styles["Normal"])) for item in suggestions]
-        elements.append(ListFlowable(bullet_points, bulletType='bullet'))
-
-        doc.build(elements)
-        return file_path
-
-    pdf_file = generate_pdf()
-
-    with open(pdf_file, "rb") as file:
-        st.download_button(
-            label="📥 Download PDF Report",
-            data=file,
-            file_name="Placement_Report.pdf",
-            mime="application/pdf"
-        )
 
     if st.button("START AGAIN"):
         st.session_state.page = 1
