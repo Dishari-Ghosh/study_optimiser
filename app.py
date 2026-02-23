@@ -7,83 +7,101 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import A4
-
-# -----------------------------
-# LOAD MODELS
-# -----------------------------
 placement_model = joblib.load("placement_model.pkl")
 study_model = joblib.load("study_recommendation_model.pkl")
 scaler = joblib.load("scaler.pkl")
-
-# -----------------------------
-# PAGE CONFIG
-# -----------------------------
 st.set_page_config(page_title="Placement Predictor", layout="centered")
 
-# -----------------------------
-# CLEAN CSS (SAFE FOR DARK/LIGHT)
-# -----------------------------
-st.markdown("""
+dark_mode = st.toggle("🌙 Dark Mode")
+
+if dark_mode:
+    bg_color = "#0E1117"
+    card_color = "#1c1f26"
+    text_color = "white"
+    header_gradient = "linear-gradient(135deg, #000000, #434343)"
+else:
+    bg_color = "#e6e9ef"
+    card_color = "white"
+    text_color = "black"
+    header_gradient = "linear-gradient(135deg, #243b55, #141e30)"
+
+st.markdown(f"""
 <style>
 
 /* App background */
-.stApp {
-    background-color: #e6e9ef;
-}
+.stApp {{
+    background-color: {bg_color};
+    color: {text_color};
+}}
+
+/* Force normal text color */
+p, h1, h2, h3, h4, h5, h6, label, span {{
+    color: {text_color} !important;
+}}
 
 /* Main Card */
-.main-card {
-    background: white;
+.main-card {{
+    background: {card_color};
     padding: 40px;
     border-radius: 15px;
     max-width: 750px;
     margin: auto;
     box-shadow: 0px 10px 30px rgba(0,0,0,0.15);
-}
+}}
 
 /* Header */
-.header-section {
-    background: linear-gradient(135deg, #243b55, #141e30);
+.header-section {{
+    background: {header_gradient};
     height: 140px;
     border-radius: 15px 15px 0 0;
     clip-path: polygon(0 0, 100% 0, 100% 75%, 0 100%);
     display: flex;
     align-items: center;
     padding-left: 30px;
-}
+}}
 
-.header-title {
+.header-title {{
     color: white;
     font-size: 26px;
     font-weight: bold;
-}
+}}
+
+/* Selectbox text fix */
+div[data-baseweb="select"] > div {{
+    color: black !important;
+    background-color: white !important;
+}}
+
+/* Dropdown options */
+ul[role="listbox"] li {{
+    color: black !important;
+    background-color: white !important;
+}}
+
+/* Text input */
+input {{
+    color: black !important;
+}}
 
 /* Buttons */
-.stButton > button {
+.stButton > button {{
     background-color: #243b55 !important;
     color: white !important;
     border-radius: 8px;
     padding: 10px 25px;
     font-weight: 600;
-}
+}}
 
-.stButton > button:hover {
+.stButton > button:hover {{
     background-color: #1b2d44 !important;
     color: white !important;
-}
+}}
 
 </style>
 """, unsafe_allow_html=True)
 
-# -----------------------------
-# SESSION STATE
-# -----------------------------
 if "page" not in st.session_state:
     st.session_state.page = 1
-
-# -----------------------------
-# PAGE 1
-# -----------------------------
 if st.session_state.page == 1:
     st.markdown('<div class="main-card">', unsafe_allow_html=True)
     st.markdown('<div class="header-section"><div class="header-title">PLACEMENT READINESS SYSTEM</div></div>', unsafe_allow_html=True)
@@ -96,16 +114,10 @@ if st.session_state.page == 1:
         st.session_state.page = 2
 
     st.markdown('</div>', unsafe_allow_html=True)
-
-# -----------------------------
-# PAGE 2
-# -----------------------------
 elif st.session_state.page == 2:
     st.markdown('<div class="main-card">', unsafe_allow_html=True)
     st.markdown('<div class="header-section"><div class="header-title">ENTER STUDENT DETAILS</div></div>', unsafe_allow_html=True)
-
     st.write("## 👤 Student Information")
-
     name = st.text_input("Full Name *")
     email = st.text_input("Email Address *")
     college = st.text_input("College Name *")
@@ -149,10 +161,6 @@ elif st.session_state.page == 2:
             st.session_state.page = 3
 
     st.markdown('</div>', unsafe_allow_html=True)
-
-# -----------------------------
-# PAGE 3
-# -----------------------------
 elif st.session_state.page == 3:
 
     readiness = st.session_state.readiness
@@ -197,3 +205,4 @@ elif st.session_state.page == 3:
         st.session_state.page = 1
 
     st.markdown('</div>', unsafe_allow_html=True)
+
