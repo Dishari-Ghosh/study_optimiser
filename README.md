@@ -83,22 +83,6 @@ Features:
 
 ---
 
-# 📂 Project Structure
-study optimiser/
-│
-├── eda.ipynb
-├── model.ipynb
-├── train_model.py
-├── app.py
-├── placement_model.pkl
-├── study_recommendation_model.pkl
-├── scaler.pkl
-├── placement.csv
-└── README.md
-
-
----
-
 # 🖥️ Tech Stack
 
 - Python
