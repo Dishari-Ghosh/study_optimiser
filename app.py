@@ -7,50 +7,75 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import A4
+
+# -----------------------------
+# LOAD MODELS
+# -----------------------------
 placement_model = joblib.load("placement_model.pkl")
 study_model = joblib.load("study_recommendation_model.pkl")
 scaler = joblib.load("scaler.pkl")
+
+# -----------------------------
+# PAGE CONFIG
+# -----------------------------
 st.set_page_config(page_title="Placement Predictor", layout="centered")
+
+# -----------------------------
+# CSS FIX FOR DARK THEME ISSUE
+# -----------------------------
 st.markdown("""
 <style>
 
-/* App Background */
-.stApp {
-    background-color: #e6e9ef;
+/* ===== FORCE LIGHT TEXT ===== */
+html, body, [class*="css"] {
+    color: #000000 !important;
 }
 
-/* Main White Card */
+/* App background */
+.stApp {
+    background-color: #e6e9ef;
+    color: #000000 !important;
+}
+
+/* Main white card */
 .main-card {
-    background: white;
+    background: #ffffff !important;
     padding: 40px;
     border-radius: 15px;
     max-width: 750px;
     margin: auto;
     box-shadow: 0px 10px 30px rgba(0,0,0,0.15);
-    color: #000000 !important;   /* FORCE BLACK TEXT */
-}
-
-/* Force all text inside card to black */
-.main-card h1,
-.main-card h2,
-.main-card h3,
-.main-card h4,
-.main-card h5,
-.main-card h6,
-.main-card p,
-.main-card span,
-.main-card div,
-.main-card label,
-.main-card li {
     color: #000000 !important;
 }
 
-/* Fix Streamlit metric text */
-[data-testid="stMetricValue"] {
+/* Everything inside card */
+.main-card * {
     color: #000000 !important;
 }
 
+/* Markdown container */
+[data-testid="stMarkdownContainer"] * {
+    color: #000000 !important;
+}
+
+/* Metrics */
+[data-testid="stMetricValue"],
 [data-testid="stMetricLabel"] {
+    color: #000000 !important;
+}
+
+/* Input labels */
+label {
+    color: #000000 !important;
+}
+
+/* Selectbox text */
+[data-baseweb="select"] * {
+    color: #000000 !important;
+}
+
+/* Slider text */
+[data-testid="stSlider"] * {
     color: #000000 !important;
 }
 
@@ -66,7 +91,7 @@ st.markdown("""
 }
 
 .header-title {
-    color: white !important;
+    color: #ffffff !important;
     font-size: 26px;
     font-weight: bold;
 }
@@ -74,7 +99,7 @@ st.markdown("""
 /* Buttons */
 .stButton>button {
     background-color: #243b55;
-    color: white !important;
+    color: #ffffff !important;
     border-radius: 8px;
     padding: 10px 25px;
     font-weight: 500;
@@ -82,63 +107,95 @@ st.markdown("""
 
 .stButton>button:hover {
     background-color: #1b2d44;
-    color: white !important;
+    color: #ffffff !important;
 }
 
 </style>
 """, unsafe_allow_html=True)
+
+# -----------------------------
+# SESSION STATE
+# -----------------------------
 if "page" not in st.session_state:
     st.session_state.page = 1
+
+# -----------------------------
+# PAGE 1
+# -----------------------------
 if st.session_state.page == 1:
     st.markdown('<div class="main-card">', unsafe_allow_html=True)
     st.markdown('<div class="header-section"><div class="header-title">PLACEMENT READINESS SYSTEM</div></div>', unsafe_allow_html=True)
+
     st.write("## 🎓 AI Powered Placement & Study Recommendation")
     st.write("A smart analytics system designed to evaluate placement readiness and recommend optimized study hours.")
     st.write("---")
+
     if st.button("START ASSESSMENT"):
         st.session_state.page = 2
+
     st.markdown('</div>', unsafe_allow_html=True)
+
+# -----------------------------
+# PAGE 2
+# -----------------------------
 elif st.session_state.page == 2:
     st.markdown('<div class="main-card">', unsafe_allow_html=True)
     st.markdown('<div class="header-section"><div class="header-title">ENTER STUDENT DETAILS</div></div>', unsafe_allow_html=True)
+
     st.write("## 👤 Student Information")
     name = st.text_input("Full Name")
     email = st.text_input("Email Address")
     college = st.text_input("College Name")
+
     st.write("---")
     st.write("## 🎓 Academic Details")
+
     year = st.selectbox("Year of Study", [3, 4])
     cgpa = st.slider("CGPA", 0.0, 10.0, 0.0)
     internships = st.slider("Internships", 0, 5, 0)
     projects = st.slider("Projects", 0, 10, 0)
+
     st.write("---")
     st.write("## 📘 Preparation Details")
+
     aptitude = st.slider("Aptitude Hours", 0, 12, 0)
     coding = st.slider("Coding Hours", 0, 12, 0)
     mock = st.slider("Mock Interviews Given", 0, 10, 0)
     attention = st.slider("Total Study Hours", 0, 12, 0)
+
     if st.button("GENERATE REPORT"):
         features = np.array([[year, cgpa, internships, projects,
                               aptitude, coding, mock, attention]])
+
         features_scaled = scaler.transform(features)
         probability = placement_model.predict_proba(features_scaled)[0][1]
+
         recommended_hours = study_model.predict(features)[0]
         recommended_hours = np.clip(recommended_hours, 2, 10)
+
         st.session_state.readiness = round(probability * 100, 2)
         st.session_state.study_hours = round(recommended_hours, 2)
         st.session_state.name = name
         st.session_state.email = email
         st.session_state.college = college
         st.session_state.page = 3
+
     st.markdown('</div>', unsafe_allow_html=True)
+
+# -----------------------------
+# PAGE 3
+# -----------------------------
 elif st.session_state.page == 3:
     readiness = st.session_state.readiness
     hours = st.session_state.study_hours
+
     st.markdown('<div class="main-card">', unsafe_allow_html=True)
     st.markdown('<div class="header-section"><div class="header-title">PLACEMENT ANALYSIS RESULT</div></div>', unsafe_allow_html=True)
+
     st.write("## 📊 Prediction Summary")
     st.metric("Placement Probability", f"{readiness}%")
     st.metric("Recommended Study Hours", f"{hours} hrs/day")
+
     if readiness >= 75:
         suggestions = [
             "Participate in coding contests",
@@ -160,10 +217,16 @@ elif st.session_state.page == 3:
             "Revise core subjects",
             "Increase study time seriously"
         ]
+
     st.write("---")
     st.write("## 📌 Improvement Plan")
+
     for s in suggestions:
         st.write("•", s)
+
+    # -----------------------------
+    # PDF GENERATION
+    # -----------------------------
     def generate_pdf():
         file_path = "Placement_Report.pdf"
         doc = SimpleDocTemplate(file_path, pagesize=A4)
