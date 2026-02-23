@@ -102,26 +102,26 @@ input {{
 """, unsafe_allow_html=True)
 
 if "page" not in st.session_state:
-st.session_state.page = 1
+   st.session_state.page = 1
 if st.session_state.page == 1:
-st.markdown('<div class="main-card">', unsafe_allow_html=True)
-st.markdown('<div class="header-section"><div class="header-title">PLACEMENT READINESS SYSTEM</div></div>', unsafe_allow_html=True)
-st.write("## 🎓 AI Powered Placement & Study Recommendation")
-st.write("A smart analytics system designed to evaluate placement readiness and recommend optimized study hours.")
-st.write("---")
+   st.markdown('<div class="main-card">', unsafe_allow_html=True)
+   st.markdown('<div class="header-section"><div class="header-title">PLACEMENT READINESS SYSTEM</div></div>', unsafe_allow_html=True)
+   st.write("## 🎓 AI Powered Placement & Study Recommendation")
+   st.write("A smart analytics system designed to evaluate placement readiness and recommend optimized study hours.")
+   st.write("---")
 if st.button("START ASSESSMENT"):
     st.session_state.page = 2
-st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 elif st.session_state.page == 2:
-st.markdown('<div class="main-card">', unsafe_allow_html=True)
-st.markdown('<div class="header-section"><div class="header-title">ENTER STUDENT DETAILS</div></div>', unsafe_allow_html=True)
+   st.markdown('<div class="main-card">', unsafe_allow_html=True)
+   st.markdown('<div class="header-section"><div class="header-title">ENTER STUDENT DETAILS</div></div>', unsafe_allow_html=True)
 
 st.write("## 👤 Student Information")
 
 name = st.text_input("Full Name")
 
 email = st.text_input("Email Address")
-
+  
 college = st.text_input("College Name")
 
 st.write("---")
@@ -371,3 +371,4 @@ if st.button("START AGAIN"):
 
 
 st.markdown('</div>', unsafe_allow_html=True)
+
